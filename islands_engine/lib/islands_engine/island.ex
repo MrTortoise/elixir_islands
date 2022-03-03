@@ -147,6 +147,20 @@ defmodule IslandsEngine.Island do
       hit_coordinates: MapSet.new([%IslandsEngine.Coordinate{col: 1, row: 1}])
     }
   }
+
+  iex> {:ok, island1} = IslandsEngine.Island.new(:square, %IslandsEngine.Coordinate{col: 1, row: 1})
+  iex> IslandsEngine.Island.guess(island1, %IslandsEngine.Coordinate{col: 1, row: 2})
+  {
+    :hit,
+    %IslandsEngine.Island{
+      coordinates: MapSet.new([
+        %IslandsEngine.Coordinate{col: 1, row: 1},
+        %IslandsEngine.Coordinate{col: 1, row: 2},
+        %IslandsEngine.Coordinate{col: 2, row: 1},
+        %IslandsEngine.Coordinate{col: 2, row: 2}]),
+      hit_coordinates: MapSet.new([%IslandsEngine.Coordinate{col: 1, row: 2}])
+    }
+  }
   """
   def guess(island, coordinate) do
     case MapSet.member?(island.coordinates, coordinate) do
@@ -158,4 +172,25 @@ defmodule IslandsEngine.Island do
         :miss
     end
   end
+
+  @doc """
+  true when an islands coordinates have all been hit
+
+  ## Examples
+  iex> {:ok, coordinate1}  = IslandsEngine.Coordinate.new(1,1)
+  iex> {:ok, island1} = IslandsEngine.Island.new(:square, coordinate1)
+  iex> IslandsEngine.Island.forested?(island1)
+  false
+
+  iex> {:ok, coordinate1}  = IslandsEngine.Coordinate.new(1,1)
+  iex> {:ok, island1} = IslandsEngine.Island.new(:square, coordinate1)
+  iex> {:hit, forested_island} = IslandsEngine.Island.guess(island1, coordinate1)
+  iex> {:hit, forested_island} = IslandsEngine.Island.guess(forested_island, %IslandsEngine.Coordinate{col: 1, row: 2})
+  iex> {:hit, forested_island} = IslandsEngine.Island.guess(forested_island, %IslandsEngine.Coordinate{col: 2, row: 1})
+  iex> {:hit, forested_island} = IslandsEngine.Island.guess(forested_island, %IslandsEngine.Coordinate{col: 2, row: 2})
+  iex> IslandsEngine.Island.forested?(forested_island)
+  true
+
+  """
+  def forested?(island), do: MapSet.equal?(island.coordinates, island.hit_coordinates)
 end
