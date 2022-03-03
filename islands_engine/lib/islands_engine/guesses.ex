@@ -16,12 +16,12 @@ defmodule IslandsEngine.Guesses do
     {:ok, %IslandsEngine.Coordinate{col: 1, row: 1}}
     iex> {:ok, coordinate2} = Coordinate.new(2,1)
     {:ok, %IslandsEngine.Coordinate{col: 1, row: 2}}
-    iex> guesses = update_in(guesses.hits, &MapSet.put(&1, coordinate1))
+    iex> guesses = Guesses.add(guesses, :hit, coordinate1)
     %IslandsEngine.Guesses{
       hits: MapSet.new([%IslandsEngine.Coordinate{col: 1, row: 1}]),
       misses: %MapSet{}
     }
-    iex> guesses = update_in(guesses.hits, &MapSet.put(&1, coordinate2))
+    iex> guesses = Guesses.add(guesses, :hit, coordinate2)
     %IslandsEngine.Guesses{
       hits: MapSet.new(
         [%IslandsEngine.Coordinate{col: 1, row: 1},
@@ -29,21 +29,36 @@ defmodule IslandsEngine.Guesses do
         ),
       misses: %MapSet{}
     }
-    iex> _guesses = update_in(guesses.hits, &MapSet.put(&1, coordinate2))
+    iex> _guesses = Guesses.add(guesses, :hit, coordinate2)
     %IslandsEngine.Guesses{
       hits: MapSet.new(
         [%IslandsEngine.Coordinate{col: 1, row: 1},
         %IslandsEngine.Coordinate{col: 1, row: 2}]
         ),
       misses: %MapSet{}
+    }
+    iex> _guesses = Guesses.add(guesses, :miss, coordinate2)
+    %IslandsEngine.Guesses{
+      hits: MapSet.new(
+        [%IslandsEngine.Coordinate{col: 1, row: 1},
+        %IslandsEngine.Coordinate{col: 1, row: 2}]
+        ),
+      misses: MapSet.new(
+        [%IslandsEngine.Coordinate{col: 1, row: 2}]
+        ),
     }
   """
 
-  alias __MODULE__
+  alias IslandsEngine.{Coordinate, Guesses}
 
   @enforce_keys [:hits, :misses]
   defstruct [:hits, :misses]
 
-  @spec new :: %IslandsEngine.Guesses{hits: MapSet.t(any), misses: MapSet.t(any)}
   def new(), do: %Guesses{hits: MapSet.new(), misses: MapSet.new()}
+
+  def add(%Guesses{} = guesses, :hit, %Coordinate{} = coordinate),
+    do: update_in(guesses.hits, &MapSet.put(&1, coordinate))
+
+  def add(%Guesses{} = guesses, :miss, %Coordinate{} = coordinate),
+    do: update_in(guesses.misses, &MapSet.put(&1, coordinate))
 end
