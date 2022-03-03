@@ -9,13 +9,10 @@ defmodule IslandsEngine.Guesses do
     # Cannot add the same hit multiple times
 
     iex> alias IslandsEngine.{Coordinate, Guesses}
-    [IslandsEngine.Coordinate, IslandsEngine.Guesses]
+    iex> {:ok, coordinate1} = Coordinate.new(1,1)
+    iex> {:ok, coordinate2} = Coordinate.new(2,1)
     iex> guesses = Guesses.new
     %IslandsEngine.Guesses{hits: %MapSet{}, misses: %MapSet{}}
-    iex> {:ok, coordinate1} = Coordinate.new(1,1)
-    {:ok, %IslandsEngine.Coordinate{col: 1, row: 1}}
-    iex> {:ok, coordinate2} = Coordinate.new(2,1)
-    {:ok, %IslandsEngine.Coordinate{col: 1, row: 2}}
     iex> guesses = Guesses.add(guesses, :hit, coordinate1)
     %IslandsEngine.Guesses{
       hits: MapSet.new([%IslandsEngine.Coordinate{col: 1, row: 1}]),
@@ -29,7 +26,7 @@ defmodule IslandsEngine.Guesses do
         ),
       misses: %MapSet{}
     }
-    iex> _guesses = Guesses.add(guesses, :hit, coordinate2)
+    iex> guesses = Guesses.add(guesses, :hit, coordinate2)
     %IslandsEngine.Guesses{
       hits: MapSet.new(
         [%IslandsEngine.Coordinate{col: 1, row: 1},
