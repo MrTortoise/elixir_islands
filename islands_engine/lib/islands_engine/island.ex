@@ -121,4 +121,41 @@ defmodule IslandsEngine.Island do
   """
   def overlaps?(existing_island, new_island),
     do: not MapSet.disjoint?(existing_island.coordinates, new_island.coordinates)
+
+  @doc """
+  Allows guessing a coordinate against an island
+
+  ## Examples
+
+  iex> {:ok, coordinate1}  = IslandsEngine.Coordinate.new(1,1)
+  iex> {:ok, island1} = IslandsEngine.Island.new(:square, coordinate1)
+  iex> {:ok, coordinate2}  = IslandsEngine.Coordinate.new(9,9)
+  iex> IslandsEngine.Island.guess(island1, coordinate2)
+  :miss
+
+  iex> {:ok, coordinate1}  = IslandsEngine.Coordinate.new(1,1)
+  iex> {:ok, island1} = IslandsEngine.Island.new(:square, coordinate1)
+  iex> IslandsEngine.Island.guess(island1, coordinate1)
+  {
+    :hit,
+    %IslandsEngine.Island{
+      coordinates: MapSet.new([
+        %IslandsEngine.Coordinate{col: 1, row: 1},
+        %IslandsEngine.Coordinate{col: 1, row: 2},
+        %IslandsEngine.Coordinate{col: 2, row: 1},
+        %IslandsEngine.Coordinate{col: 2, row: 2}]),
+      hit_coordinates: MapSet.new([%IslandsEngine.Coordinate{col: 1, row: 1}])
+    }
+  }
+  """
+  def guess(island, coordinate) do
+    case MapSet.member?(island.coordinates, coordinate) do
+      true ->
+        hit_coordinates = MapSet.put(island.hit_coordinates, coordinate)
+        {:hit, %{island | hit_coordinates: hit_coordinates}}
+
+      false ->
+        :miss
+    end
+  end
 end
