@@ -109,6 +109,15 @@ defmodule IslandsEngine.Island do
   defp offsets(_), do: {:error, :invalid_island_type}
 
   @doc """
+  Returns all the types of islands
+
+  ## Examples
+  iex> IslandsEngine.Island.types()
+  [:square, :atoll, :dot, :s_shape, :l_shape]
+  """
+  def types(), do: [:square, :atoll, :dot, :s_shape, :l_shape]
+
+  @doc """
   Detects overlapping islands
 
   ## Examples
@@ -190,7 +199,6 @@ defmodule IslandsEngine.Island do
   iex> {:hit, forested_island} = IslandsEngine.Island.guess(forested_island, %IslandsEngine.Coordinate{col: 2, row: 2})
   iex> IslandsEngine.Island.forested?(forested_island)
   true
-
   """
   def forested?(island), do: MapSet.equal?(island.coordinates, island.hit_coordinates)
 end
