@@ -17,8 +17,6 @@ defmodule IslandsEngine.Coordinate do
 
   iex> IslandsEngine.Coordinate.new(6,11)
   {:error, :invalid_coordinates}
-
-
   """
 
   alias __MODULE__
