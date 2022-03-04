@@ -3,7 +3,7 @@ defmodule IslandsEngine.Board do
   Represents the board and manages the interactions of the parts
   """
 
-  alias IslandsEngine.Island
+  alias IslandsEngine.{Island, Coordinate}
 
   @doc """
   ## Examples
@@ -111,4 +111,103 @@ defmodule IslandsEngine.Board do
   true
   """
   def all_islands_positioned?(board), do: Enum.all?(Island.types(), &Map.has_key?(board, &1))
+
+  @doc """
+  takes a board and makes a guess but then returns an tuple with :hit / :miss, whether the hit thing has been forested or not, :win or :no_win and finally the IslandsEngine.Board
+
+  ## Examples
+
+    iex> IslandsEngine.Board.guess(%{}, %IslandsEngine.Coordinate{row: 1, col: 1})
+    {:miss, :none, :no_win, %{}}
+
+    iex> {:ok, island} = IslandsEngine.Island.new(:square, %IslandsEngine.Coordinate{row: 1, col: 1})
+    iex> board = IslandsEngine.Board.position_island(%{}, :square, island)
+    iex> IslandsEngine.Board.guess(board, %IslandsEngine.Coordinate{row: 1, col: 1})
+    {
+      :hit,
+      :none,
+      :no_win,
+      %{
+        square: %IslandsEngine.Island{
+          coordinates: MapSet.new([
+            %IslandsEngine.Coordinate{col: 1, row: 1},
+            %IslandsEngine.Coordinate{col: 1, row: 2},
+            %IslandsEngine.Coordinate{col: 2, row: 1},
+            %IslandsEngine.Coordinate{col: 2, row: 2}]),
+          hit_coordinates: MapSet.new([%IslandsEngine.Coordinate{col: 1, row: 1}])
+        }
+      }
+    }
+
+    iex> {:ok, island} = IslandsEngine.Island.new(:square, %IslandsEngine.Coordinate{row: 1, col: 1})
+    iex> board = IslandsEngine.Board.position_island(%{}, :square, island)
+    iex> {:hit, :none, no_win, board} = IslandsEngine.Board.guess(board, %IslandsEngine.Coordinate{row: 1, col: 1})
+    iex> {:hit, :none, no_win, board} = IslandsEngine.Board.guess(board, %IslandsEngine.Coordinate{row: 1, col: 2})
+    iex> {:hit, :none, no_win, board} = IslandsEngine.Board.guess(board, %IslandsEngine.Coordinate{row: 2, col: 1})
+    iex> IslandsEngine.Board.guess(board, %IslandsEngine.Coordinate{row: 2, col: 2})
+    {
+      :hit,
+      :square,
+      :win,
+      %{
+        square: %IslandsEngine.Island{
+          coordinates: MapSet.new([
+            %IslandsEngine.Coordinate{col: 1, row: 1},
+            %IslandsEngine.Coordinate{col: 1, row: 2},
+            %IslandsEngine.Coordinate{col: 2, row: 1},
+            %IslandsEngine.Coordinate{col: 2, row: 2}]),
+          hit_coordinates: MapSet.new([
+            %IslandsEngine.Coordinate{col: 1, row: 1},
+            %IslandsEngine.Coordinate{col: 1, row: 2},
+            %IslandsEngine.Coordinate{col: 2, row: 1},
+            %IslandsEngine.Coordinate{col: 2, row: 2}])
+        }
+      }
+    }
+  """
+  def guess(board, %Coordinate{} = coordinate) do
+    board
+    |> check_all_islands(coordinate)
+    |> guess_response(board)
+  end
+
+  defp check_all_islands(board, coordinate) do
+    Enum.find_value(board, :miss, fn {key, island} ->
+      case Island.guess(island, coordinate) do
+        {:hit, island} -> {key, island}
+        :miss -> false
+      end
+    end)
+  end
+
+  defp guess_response(:miss, board), do: {:miss, :none, :no_win, board}
+
+  defp guess_response({key, island}, board) do
+    board = %{board | key => island}
+    {:hit, forest_check(board, key), win_check(board), board}
+  end
+
+  defp forest_check(board, key) do
+    case forested?(board, key) do
+      true -> key
+      false -> :none
+    end
+  end
+
+  defp forested?(board, key) do
+    board
+    # we know the coordinates hit so we know a key exists
+    |> Map.fetch!(key)
+    |> Island.forested?()
+  end
+
+  defp win_check(board) do
+    case all_forested?(board) do
+      true -> :win
+      false -> :no_win
+    end
+  end
+
+  defp all_forested?(board),
+    do: Enum.all?(board, fn {_key, island} -> Island.forested?(island) end)
 end
