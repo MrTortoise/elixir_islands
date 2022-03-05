@@ -19,25 +19,32 @@ defmodule IslandsEngine.Rules do
   checks what state to return given an action
 
   :initialized + :add_player -> :players_set
-  :players_set + {:position_islands :player1} + {:position_islands :player2} -> :player_1_turn
+  :players_set + {:position_islands :player1} + {:position_islands :player2} -> :player1_turn
 
   ##Examples
+  ### Error Condition
   iex> IslandsEngine.Rules.check(:oops, :spoo)
   :error
 
+  ### First action is add player
   iex> IslandsEngine.Rules.check(%IslandsEngine.Rules{}, :add_player)
   {:ok, %IslandsEngine.Rules{state: :players_set}}
 
+  ### Random actions through error
   iex> IslandsEngine.Rules.check(%IslandsEngine.Rules{}, :random_thing)
   :error
 
-  iex>{:ok, rules} = IslandsEngine.Rules.check(IslandsEngine.Rules.new(), :add_player)
+  ### Given :players_set when {:position_islands :player1} then same state (:players_set)
+  iex>rules = %IslandsEngine.Rules{state: :players_set}
   iex>IslandsEngine.Rules.check(rules, {:position_islands, :player1} )
   {:ok, %IslandsEngine.Rules{player1: :islands_not_set, player2: :islands_not_set, state: :players_set}}
 
-  iex>{:ok, rules} = IslandsEngine.Rules.check(IslandsEngine.Rules.new(), :add_player)
+  ### Given :players_set when {:position_islands :player2} then same state (:players_set)
+  iex>rules = %IslandsEngine.Rules{state: :players_set}
   iex>IslandsEngine.Rules.check(rules, {:position_islands, :player2} )
   {:ok, %IslandsEngine.Rules{player1: :islands_not_set, player2: :islands_not_set, state: :players_set}}
+
+
   """
   def check(%Rules{state: :initialized} = rules, :add_player) do
     {:ok, %Rules{rules | state: :players_set}}
@@ -45,7 +52,7 @@ defmodule IslandsEngine.Rules do
 
   # def check(%Rules{})
 
-  def check(%Rules{state: :players_set} = rules, {:position_islands, _player}) do
+  def check(%Rules{state: :players_set} = rules, {:position_islands, player}) do
     {:ok, rules}
   end
 
