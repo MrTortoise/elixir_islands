@@ -94,6 +94,16 @@ defmodule IslandsEngine.Rules do
   iex>rules = %IslandsEngine.Rules{state: :player2_turn}
   iex>IslandsEngine.Rules.check(rules, {:guess_coordinate, :player1} )
   :error
+
+  ## Given :player2_turn when {:guess_coordinate, :player2} then :player1_turn
+  iex>rules = %IslandsEngine.Rules{state: :player2_turn}
+  iex>IslandsEngine.Rules.check(rules, {:guess_coordinate, :player2} )
+  {:ok, %IslandsEngine.Rules{state: :player1_turn}}
+
+  ## Given :player2_turn when {:guess_coordinate, :player1} then :error
+  iex>rules = %IslandsEngine.Rules{state: :player1_turn}
+  iex>IslandsEngine.Rules.check(rules, {:guess_coordinate, :player2} )
+  :error
   """
 
   def check(%Rules{state: :initialized} = rules, :add_player) do
@@ -118,6 +128,9 @@ defmodule IslandsEngine.Rules do
 
   def check(%Rules{state: :player1_turn} = rules, {:guess_coordinate, :player1}),
     do: {:ok, %Rules{rules | state: :player2_turn}}
+
+  def check(%Rules{state: :player2_turn} = rules, {:guess_coordinate, :player2}),
+    do: {:ok, %Rules{rules | state: :player1_turn}}
 
   def check(_state, _action), do: :error
 
