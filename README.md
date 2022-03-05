@@ -17,3 +17,5 @@ if whoerver reads this installs elixir you can run the tests with
 ```bash
 mix test
 ```
+
+last time i worked through this book i followed along with all the console stuff to test ... took fucking ages didnt get as far in a week as i hav ein 2 days by using tests (because rerunning a load of console commands to get to a state is fiddly as fuck)
