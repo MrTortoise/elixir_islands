@@ -44,6 +44,16 @@ defmodule IslandsEngine.Rules do
   iex>IslandsEngine.Rules.check(rules, {:position_islands, :player2} )
   {:ok, %IslandsEngine.Rules{player1: :islands_not_set, player2: :islands_not_set, state: :players_set}}
 
+  ### Given :players_set when {:set_islands :player1} then player1: :islands_set
+  iex>rules = %IslandsEngine.Rules{state: :players_set}
+  iex>IslandsEngine.Rules.check(rules, {:set_islands, :player1} )
+  {:ok, %IslandsEngine.Rules{player1: :islands_set, player2: :islands_not_set, state: :players_set}}
+
+  ### Given :players_set when {:set_islands :player1} then player1: :islands_set
+  iex>rules = %IslandsEngine.Rules{state: :players_set}
+  iex>IslandsEngine.Rules.check(rules, {:set_islands, :player2} )
+  {:ok, %IslandsEngine.Rules{player1: :islands_not_set, player2: :islands_set, state: :players_set}}
+
 
   """
   def check(%Rules{state: :initialized} = rules, :add_player) do
@@ -52,8 +62,12 @@ defmodule IslandsEngine.Rules do
 
   # def check(%Rules{})
 
-  def check(%Rules{state: :players_set} = rules, {:position_islands, player}) do
+  def check(%Rules{state: :players_set} = rules, {:position_islands, _player}) do
     {:ok, rules}
+  end
+
+  def check(%Rules{state: players_set} = rules, {:set_islands, player}) do
+    {:ok, Map.put(rules, player, :islands_set)}
   end
 
   def check(_state, _action), do: :error
