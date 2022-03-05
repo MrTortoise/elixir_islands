@@ -78,7 +78,13 @@ defmodule IslandsEngine.Rules do
   iex>rules = %IslandsEngine.Rules{state: :players_set, player2: :islands_set}
   iex>IslandsEngine.Rules.check(rules, {:set_islands, :player1} )
   {:ok, %IslandsEngine.Rules{player1: :islands_set, player2: :islands_set, state: :player1_turn}}
+
+  ## Given :players_set and :player1 :islands_set  when {:set_islands :player2} then :player1_turn
+  iex>rules = %IslandsEngine.Rules{state: :players_set, player1: :islands_set}
+  iex>IslandsEngine.Rules.check(rules, {:set_islands, :player2} )
+  {:ok, %IslandsEngine.Rules{player1: :islands_set, player2: :islands_set, state: :player1_turn}}
   """
+
   def check(%Rules{state: :initialized} = rules, :add_player) do
     {:ok, %Rules{rules | state: :players_set}}
   end
