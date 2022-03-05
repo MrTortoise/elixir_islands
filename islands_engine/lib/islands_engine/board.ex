@@ -6,6 +6,7 @@ defmodule IslandsEngine.Board do
 
   alias IslandsEngine.{Island, Coordinate}
 
+  @spec new :: %{}
   @doc """
   ## Examples
   iex> IslandsEngine.Board.new()

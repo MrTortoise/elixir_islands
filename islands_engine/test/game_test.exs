@@ -10,13 +10,13 @@ defmodule GameTest do
     assert :sys.get_state(game).player2.name == "fred"
   end
 
-  defp game_with_players_set(context) do
+  defp game_with_players_set(_context) do
     {:ok, game} = Game.start_link("dave")
     :ok = Game.add_player(game, "fred")
     %{game: game}
   end
 
-  defp game_With_all_islands_set(context) do
+  defp game_with_all_islands_set(context) do
     game = context.game
 
     Game.position_island(game, :player1, :square, 1, 1)
@@ -103,7 +103,76 @@ defmodule GameTest do
       :ok = Game.set_islands(game, :player1)
       :ok = Game.set_islands(game, :player2)
 
-      gamestate = assert :sys.get_state(game).rules.state == :player1_turn
+      assert :sys.get_state(game).rules.state == :player1_turn
+    end
+  end
+
+  describe "given islands are set" do
+    setup [:game_with_players_set, :game_with_all_islands_set]
+
+    test "get a hit when guessing a coord on an island", context do
+      game = context.game
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player1, 1, 1)
+    end
+
+    test "hit all of 1 island to get it returned :square as forested", context do
+      game = context.game
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player1, 1, 1)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player2, 1, 1)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player1, 1, 2)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player2, 1, 2)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player1, 2, 1)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player2, 2, 1)
+      {:hit, :square, :no_win} = Game.guess_coordinate(game, :player1, 2, 2)
+    end
+
+    test "hit all of all islands check game goes to state winner", context do
+      game = context.game
+      # square
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player1, 1, 1)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player2, 1, 1)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player1, 1, 2)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player2, 1, 2)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player1, 2, 1)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player2, 2, 1)
+      {:hit, :square, :no_win} = Game.guess_coordinate(game, :player1, 2, 2)
+      {:hit, :square, :no_win} = Game.guess_coordinate(game, :player2, 2, 2)
+
+      # s_shape
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player1, 2, 3)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player2, 2, 3)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player1, 3, 2)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player2, 3, 2)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player1, 3, 3)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player2, 3, 3)
+      {:hit, :s_shape, :no_win} = Game.guess_coordinate(game, :player1, 2, 4)
+      {:hit, :s_shape, :no_win} = Game.guess_coordinate(game, :player2, 2, 4)
+
+      # dot
+      {:hit, :dot, :no_win} = Game.guess_coordinate(game, :player1, 3, 1)
+      {:hit, :dot, :no_win} = Game.guess_coordinate(game, :player2, 3, 1)
+
+      # Atoll
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player1, 5, 1)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player2, 5, 1)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player1, 7, 1)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player2, 7, 1)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player1, 5, 2)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player2, 5, 2)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player1, 6, 2)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player2, 6, 2)
+      {:hit, :atoll, :no_win} = Game.guess_coordinate(game, :player1, 7, 2)
+      {:hit, :atoll, :no_win} = Game.guess_coordinate(game, :player2, 7, 2)
+
+      # L-shape
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player1, 9, 1)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player2, 9, 1)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player1, 10, 1)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player2, 10, 1)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player1, 8, 2)
+      {:hit, :none, :no_win} = Game.guess_coordinate(game, :player2, 8, 2)
+
+      {:hit, :l_shape, :win} = Game.guess_coordinate(game, :player1, 10, 2)
     end
   end
 end
