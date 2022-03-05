@@ -1,6 +1,7 @@
 defmodule IslandsEngine.Board do
   @moduledoc """
-  Represents the board and manages the interactions of the parts
+  Represents the board and manages the interactions of the parts.
+  This is the aggregate root of the game and will likley form the base of main api.
   """
 
   alias IslandsEngine.{Island, Coordinate}
