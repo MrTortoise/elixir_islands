@@ -26,5 +26,15 @@ defmodule GameTest do
       board = state.player1.board
       assert Map.has_key?(board, :square)
     end
+
+    test "when add invalid coordinate error", context do
+      game = context.game
+      {:error, :invalid_coordinates} = Game.position_island(game, :player1, :square, 1, 12)
+    end
+
+    test "when add invalid shape error", context do
+      game = context.game
+      {:error, :invalid_island_type} = Game.position_island(game, :player1, :dave, 1, 1)
+    end
   end
 end
