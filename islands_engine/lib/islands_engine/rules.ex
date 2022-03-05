@@ -89,6 +89,11 @@ defmodule IslandsEngine.Rules do
   iex>rules = %IslandsEngine.Rules{state: :player1_turn}
   iex>IslandsEngine.Rules.check(rules, {:guess_coordinate, :player1} )
   {:ok, %IslandsEngine.Rules{state: :player2_turn}}
+
+  ## Given :player1_turn when {:guess_coordinate, :player2} then :error
+  iex>rules = %IslandsEngine.Rules{state: :player2_turn}
+  iex>IslandsEngine.Rules.check(rules, {:guess_coordinate, :player1} )
+  :error
   """
 
   def check(%Rules{state: :initialized} = rules, :add_player) do
