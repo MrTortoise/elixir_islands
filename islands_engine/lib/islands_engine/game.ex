@@ -24,7 +24,6 @@ defmodule IslandsEngine.Game do
 
   ## Example
 
-  ### Happy PAth
   iex> alias IslandsEngine.Game
   iex> {:ok, game} = Game.start_link("Dave")
   iex> Game.add_player(game, "dave2")
@@ -34,6 +33,9 @@ defmodule IslandsEngine.Game do
   """
   def position_island(game, player, shape, row, col) when player in @players,
     do: GenServer.call(game, {:position_island, player, shape, row, col})
+
+  def set_islands(game, player) when player in @players,
+    do: GenServer.call(game, {:set_islands, player})
 
   def init(name) do
     player1 = %{name: name, board: Board.new(), guesses: Guesses.new()}
@@ -51,10 +53,6 @@ defmodule IslandsEngine.Game do
       :error -> {:reply, :error, state}
     end
   end
-
-  defp update_player2_name(state, name), do: put_in(state.player2.name, name)
-  defp update_rules(state, rules), do: %{state | rules: rules}
-  defp reply_success(state, reply), do: {:reply, reply, state}
 
   def handle_call({:position_island, player, shape, row, col}, _from, state) do
     board = player_board(state, player)
@@ -74,6 +72,24 @@ defmodule IslandsEngine.Game do
       {:error, :overlapping_island} -> {:reply, {:error, :overlapping_island}, state}
     end
   end
+
+  def handle_call({:set_islands, player}, _from, state) do
+    board = player_board(state, player)
+
+    with {:ok, rules} <- Rules.check(state.rules, {:set_islands, player}),
+         true <- Board.all_islands_positioned?(board) do
+      state
+      |> update_rules(rules)
+      |> reply_success(:ok)
+    else
+      :error -> {:reply, :error, state}
+      false -> {:reply, {:error, :not_all_islands_positioned}, state}
+    end
+  end
+
+  defp update_player2_name(state, name), do: put_in(state.player2.name, name)
+  defp update_rules(state, rules), do: %{state | rules: rules}
+  defp reply_success(state, reply), do: {:reply, reply, state}
 
   defp player_board(state, player), do: Map.get(state, player).board
 
