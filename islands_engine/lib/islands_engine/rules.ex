@@ -104,6 +104,26 @@ defmodule IslandsEngine.Rules do
   iex>rules = %IslandsEngine.Rules{state: :player1_turn}
   iex>IslandsEngine.Rules.check(rules, {:guess_coordinate, :player2} )
   :error
+
+  ## Given :player1_turn when {:win_check, :win} then :game_over
+  iex>rules = %IslandsEngine.Rules{state: :player1_turn}
+  iex>IslandsEngine.Rules.check(rules, {:win_check, :win} )
+  {:ok, %IslandsEngine.Rules{state: :game_over}}
+
+  ## Given :player1_turn when {:win_check, :win} then :player1_turn
+  iex>rules = %IslandsEngine.Rules{state: :player1_turn}
+  iex>IslandsEngine.Rules.check(rules, {:win_check, :no_win} )
+  {:ok, %IslandsEngine.Rules{state: :player1_turn}}
+
+  ## Given :player2_turn when {:win_check, :win} then :game_over
+  iex>rules = %IslandsEngine.Rules{state: :player2_turn}
+  iex>IslandsEngine.Rules.check(rules, {:win_check, :win} )
+  {:ok, %IslandsEngine.Rules{state: :game_over}}
+
+  ## Given :player2_turn when {:win_check, :win} then :player2_turn
+  iex>rules = %IslandsEngine.Rules{state: :player2_turn}
+  iex>IslandsEngine.Rules.check(rules, {:win_check, :no_win} )
+  {:ok, %IslandsEngine.Rules{state: :player2_turn}}
   """
 
   def check(%Rules{state: :initialized} = rules, :add_player) do
@@ -129,8 +149,22 @@ defmodule IslandsEngine.Rules do
   def check(%Rules{state: :player1_turn} = rules, {:guess_coordinate, :player1}),
     do: {:ok, %Rules{rules | state: :player2_turn}}
 
+  def check(%Rules{state: :player1_turn} = rules, {:win_check, win_or_not}) do
+    case win_or_not do
+      :no_win -> {:ok, rules}
+      :win -> {:ok, %Rules{rules | state: :game_over}}
+    end
+  end
+
   def check(%Rules{state: :player2_turn} = rules, {:guess_coordinate, :player2}),
     do: {:ok, %Rules{rules | state: :player1_turn}}
+
+  def check(%Rules{state: :player2_turn} = rules, {:win_check, win_or_not}) do
+    case win_or_not do
+      :no_win -> {:ok, rules}
+      :win -> {:ok, %Rules{rules | state: :game_over}}
+    end
+  end
 
   def check(_state, _action), do: :error
 
