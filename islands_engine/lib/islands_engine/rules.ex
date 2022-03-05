@@ -1,6 +1,11 @@
 defmodule IslandsEngine.Rules do
   alias __MODULE__
 
+  @moduledoc """
+  This is the state machine for the game.
+  Controls what commands players can execute at a given time.
+  """
+
   defstruct state: :initialized,
             player1: :islands_not_set,
             player2: :islands_not_set
@@ -16,10 +21,15 @@ defmodule IslandsEngine.Rules do
   def new(), do: %Rules{}
 
   @doc """
-  checks what state to return given an action
+  Given an existing state and a command will either return a new state or error
 
   :initialized + :add_player -> :players_set
-  :players_set + {:position_islands :player1} + {:position_islands :player2} -> :player1_turn
+  :players_set + {:position_islands :player1} -> :players_set
+  :players_set + {:position_islands :player2} -> :players_set
+  :players_set + {:set_islands :player1} -> :players_set
+  :players_set + {:set_islands :player2} -> :players_set
+  :players_set + {:set_islands :player1} + {:set_islands :player2} -> :player1_turn
+
 
   ##Examples
   ### Error Condition
@@ -64,12 +74,14 @@ defmodule IslandsEngine.Rules do
   iex>IslandsEngine.Rules.check(rules, {:position_islands, :player2} )
   :error
 
+  ## Given :players_set and :player2 :islands_set  when {:set_islands :player1} then :player1_turn
+  iex>rules = %IslandsEngine.Rules{state: :players_set, player2: :islands_set}
+  iex>IslandsEngine.Rules.check(rules, {:set_islands, :player1} )
+  {:ok, %IslandsEngine.Rules{player1: :islands_set, player2: :islands_set, state: :player1_turn}}
   """
   def check(%Rules{state: :initialized} = rules, :add_player) do
     {:ok, %Rules{rules | state: :players_set}}
   end
-
-  # def check(%Rules{})
 
   def check(%Rules{state: :players_set} = rules, {:position_islands, player}) do
     case Map.fetch!(rules, player) do
@@ -79,8 +91,16 @@ defmodule IslandsEngine.Rules do
   end
 
   def check(%Rules{state: :players_set} = rules, {:set_islands, player}) do
-    {:ok, Map.put(rules, player, :islands_set)}
+    rules = Map.put(rules, player, :islands_set)
+
+    case both_players_set_islands?(rules) do
+      true -> {:ok, Map.put(rules, :state, :player1_turn)}
+      false -> {:ok, rules}
+    end
   end
 
   def check(_state, _action), do: :error
+
+  defp both_players_set_islands?(rules),
+    do: rules.player1 == :islands_set and rules.player2 == :islands_set
 end
