@@ -11,7 +11,7 @@ Turns out in a lot of cases I think clarity in the book would of been higher - a
 Also I am amazed at the build and test time - it needs to run in a container, yet the CI time is almost as fast as i can go from push in a terminal to alt-tabbing and hitting refresh on github.  Compared to js / dotnet etc (that said i have no selenium tests etc yet) its phenomenally fast (even if just comparing unit tests).
 
 Forgot how much i like doctests in elixir.
-[Eg like here](islands_engine/lib/islands_engine/board.ex)
+[Eg like here](islands_engine/lib/islands_engine/rules.ex)
 
 if whoerver reads this installs elixir you can run the tests with
 ```bash
