@@ -24,11 +24,12 @@ defmodule IslandsEngine.Rules do
   Given an existing state and a command will either return a new state or error
 
   :initialized + :add_player -> :players_set
-  :players_set + {:position_islands :player1} -> :players_set
-  :players_set + {:position_islands :player2} -> :players_set
-  :players_set + {:set_islands :player1} -> :players_set
-  :players_set + {:set_islands :player2} -> :players_set
-  :players_set + {:set_islands :player1} + {:set_islands :player2} -> :player1_turn
+  :players_set + {:position_islands, :player1} -> :players_set
+  :players_set + {:position_islands, :player2} -> :players_set
+  :players_set + {:set_islands, :player1} -> :players_set
+  :players_set + {:set_islands, :player2} -> :players_set
+  :players_set + {:set_islands, :player1} + {:set_islands :player2} -> :player1_turn
+  :player1_turn + {:guess_coordinate, :player1} -> :player2_turn
 
 
   ##Examples
@@ -83,6 +84,11 @@ defmodule IslandsEngine.Rules do
   iex>rules = %IslandsEngine.Rules{state: :players_set, player1: :islands_set}
   iex>IslandsEngine.Rules.check(rules, {:set_islands, :player2} )
   {:ok, %IslandsEngine.Rules{player1: :islands_set, player2: :islands_set, state: :player1_turn}}
+
+  ## Given :player1_turn when {:guess_coordinate, :player1} then :player2_turn
+  iex>rules = %IslandsEngine.Rules{state: :player1_turn}
+  iex>IslandsEngine.Rules.check(rules, {:guess_coordinate, :player1} )
+  {:ok, %IslandsEngine.Rules{state: :player2_turn}}
   """
 
   def check(%Rules{state: :initialized} = rules, :add_player) do
@@ -104,6 +110,9 @@ defmodule IslandsEngine.Rules do
       false -> {:ok, rules}
     end
   end
+
+  def check(%Rules{state: :player1_turn} = rules, {:guess_coordinate, :player1}),
+    do: {:ok, %Rules{rules | state: :player2_turn}}
 
   def check(_state, _action), do: :error
 
