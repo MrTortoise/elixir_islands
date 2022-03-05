@@ -19,11 +19,19 @@ defmodule GameTest do
   describe "Given a game with 2 players added" do
     setup [:game_with_players_set]
 
-    test "add an island", context do
+    test "player 1 add an island", context do
       game = context.game
       :ok = Game.position_island(game, :player1, :square, 1, 1)
       state = :sys.get_state(game)
       board = state.player1.board
+      assert Map.has_key?(board, :square)
+    end
+
+    test "player 2 add an island", context do
+      game = context.game
+      :ok = Game.position_island(game, :player2, :square, 1, 1)
+      state = :sys.get_state(game)
+      board = state.player2.board
       assert Map.has_key?(board, :square)
     end
 
