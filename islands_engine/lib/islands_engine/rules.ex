@@ -59,7 +59,7 @@ defmodule IslandsEngine.Rules do
   iex>IslandsEngine.Rules.check(rules, {:position_islands, :player1} )
   :error
 
-    ## Given :players_set and :islands_set when {:position_islands, :player2} then error
+  ## Given :players_set and :islands_set when {:position_islands, :player2} then error
   iex>rules = %IslandsEngine.Rules{state: :players_set, player2: :islands_set}
   iex>IslandsEngine.Rules.check(rules, {:position_islands, :player2} )
   :error
@@ -78,7 +78,7 @@ defmodule IslandsEngine.Rules do
     end
   end
 
-  def check(%Rules{state: players_set} = rules, {:set_islands, player}) do
+  def check(%Rules{state: :players_set} = rules, {:set_islands, player}) do
     {:ok, Map.put(rules, player, :islands_set)}
   end
 
