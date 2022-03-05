@@ -5,6 +5,8 @@ Its basically definatley not battleships
 
 
 admittedly its going through a book as really looking to get into phoenix live view and channels.
+The book has no tests though! so having fun taking the book and figuring out how it would read if it was test driven.
+Turns out in a lot of cases I think clarity in the book would of been higher - as the reasons for doing things when they are done would be *far* clearer a lot of the time. 
 
 Forgot how much i like doctests in elixir.
 [Eg like here](islands_engine/lib/islands_engine/board.ex)
