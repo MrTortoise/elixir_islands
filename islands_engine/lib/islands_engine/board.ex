@@ -141,9 +141,9 @@ defmodule IslandsEngine.Board do
 
     iex> {:ok, island} = IslandsEngine.Island.new(:square, %IslandsEngine.Coordinate{row: 1, col: 1})
     iex> board = IslandsEngine.Board.position_island(%{}, :square, island)
-    iex> {:hit, :none, no_win, board} = IslandsEngine.Board.guess(board, %IslandsEngine.Coordinate{row: 1, col: 1})
-    iex> {:hit, :none, no_win, board} = IslandsEngine.Board.guess(board, %IslandsEngine.Coordinate{row: 1, col: 2})
-    iex> {:hit, :none, no_win, board} = IslandsEngine.Board.guess(board, %IslandsEngine.Coordinate{row: 2, col: 1})
+    iex> {:hit, :none, :no_win, board} = IslandsEngine.Board.guess(board, %IslandsEngine.Coordinate{row: 1, col: 1})
+    iex> {:hit, :none, :no_win, board} = IslandsEngine.Board.guess(board, %IslandsEngine.Coordinate{row: 1, col: 2})
+    iex> {:hit, :none, :no_win, board} = IslandsEngine.Board.guess(board, %IslandsEngine.Coordinate{row: 2, col: 1})
     iex> IslandsEngine.Board.guess(board, %IslandsEngine.Coordinate{row: 2, col: 2})
     {
       :hit,
