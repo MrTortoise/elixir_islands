@@ -19,7 +19,7 @@ So please don't think the actual solution code here is mine!
 The book has no tests though! and a few things have changed in the language so having to update them. So, having fun taking the book and figuring out how it would read if it was test driven.
 Turns out in a lot of cases I think clarity in the book would of been higher - as the reasons for doing things when they are done would be *far* clearer a lot of the time. This however would involve more complex topics like OTP up front - evolving data models in TDD would make for a **much** longer book.
 
-Also I am amazed at the build and test time - it needs to run in a container, yet the CI time is almost as fast as i can go from push in a terminal to alt-tabbing and hitting refresh on github.  Compared to js / dotnet etc (that said i have no selenium tests etc yet) its phenomenally fast (even if just comparing unit tests).
+Also I am amazed at the build and test time (70 tests in 0.2s) - it needs to run in a container, yet the CI time is almost as fast as i can go from push in a terminal to alt-tabbing and hitting refresh on github.  Compared to js / dotnet etc (that said i have no selenium tests etc yet) its phenomenally fast (even if just comparing unit tests).
 
 Forgot how much i like doctests in elixir.
 [Eg like here](islands_engine/lib/islands_engine/rules.ex)
