@@ -10,6 +10,13 @@ defmodule GameTest do
     assert :sys.get_state(game).player2.name == "fred"
   end
 
+  test "game state gets persisted to ets" do
+    {:ok, game} = Game.start_link("dave")
+    :ok = Game.add_player(game, "fred")
+    [{"dave", state}] = :ets.lookup(:game_state, "dave")
+    assert "fred" == state.player2.name
+  end
+
   defp game_with_players_set(_context) do
     {:ok, game} = Game.start_link("dave")
     :ok = Game.add_player(game, "fred")
