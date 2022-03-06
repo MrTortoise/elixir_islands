@@ -5,21 +5,27 @@ defmodule GameTest do
   alias IslandsEngine.{Game}
 
   test "can add players to game" do
-    {:ok, game} = Game.start_link("dave")
-    :ok = Game.add_player(game, "fred")
-    assert :sys.get_state(game).player2.name == "fred"
+    player1_name = to_string(CryptoRand.take_random(?a..?z, 10))
+    player2_name = to_string(CryptoRand.take_random(?a..?z, 10))
+    {:ok, game} = Game.start_link(player1_name)
+    :ok = Game.add_player(game, player2_name)
+    assert :sys.get_state(game).player2.name == player2_name
   end
 
   test "game state gets persisted to ets" do
-    {:ok, game} = Game.start_link("dave")
-    :ok = Game.add_player(game, "fred")
-    [{"dave", state}] = :ets.lookup(:game_state, "dave")
-    assert "fred" == state.player2.name
+    player1_name = to_string(CryptoRand.take_random(?a..?z, 10))
+    player2_name = to_string(CryptoRand.take_random(?a..?z, 10))
+    {:ok, game} = Game.start_link(player1_name)
+    :ok = Game.add_player(game, player2_name)
+    [{player1_name, state}] = :ets.lookup(:game_state, player1_name)
+    assert player2_name == state.player2.name
   end
 
   defp game_with_players_set(_context) do
-    {:ok, game} = Game.start_link("dave")
-    :ok = Game.add_player(game, "fred")
+    player1_name = to_string(CryptoRand.take_random(?a..?z, 10))
+    player2_name = to_string(CryptoRand.take_random(?a..?z, 10))
+    {:ok, game} = Game.start_link(player1_name)
+    :ok = Game.add_player(game, player2_name)
     %{game: game}
   end
 

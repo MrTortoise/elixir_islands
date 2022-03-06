@@ -1,0 +1,3 @@
+%{
+  "crypto_rand": {:hex, :crypto_rand, "1.0.3", "8773799e3ed124ce8a81feb935fffbeb3b6621ea2b841c2bbaff4fd09752fd66", [:mix], [], "hexpm", "701a76fea71119fe60aea02f50191bf82a60cb687046931e4d6de6acb8da1685"},
+}
