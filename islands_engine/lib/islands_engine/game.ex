@@ -3,7 +3,7 @@ defmodule IslandsEngine.Game do
 
   alias IslandsEngine.{Board, Guesses, Rules, Island, Coordinate}
   @players [:player1, :player2]
-  @timeout 15000
+  @timeout 60 * 60 * 24 * 1000
 
   def via_tuple(name), do: {:via, Registry, {Registry.Game, name}}
 
