@@ -21,7 +21,11 @@ defmodule IslandsEngine.GameSupervisor do
   def init(:ok), do: DynamicSupervisor.init(strategy: :one_for_one)
 
   def start_game(name), do: DynamicSupervisor.start_child(__MODULE__, {Game, name})
-  def stop_game(name), do: DynamicSupervisor.terminate_child(__MODULE__, name_to_pid(name))
+
+  def stop_game(name) do
+    :ets.delete(:game_state, name)
+    DynamicSupervisor.terminate_child(__MODULE__, name_to_pid(name))
+  end
 
   defp name_to_pid(name) do
     name
