@@ -5,6 +5,14 @@ defmodule IslandsEngine.GameSupervisor do
 
   @moduledoc """
   Responsible for starting, stopping and restarting named Game instances
+
+  ## Examples
+  iex> {:ok, game} = IslandsEngine.GameSupervisor.start_game("sup_test")
+  iex> Process.alive?(game)
+  true
+  iex> IslandsEngine.GameSupervisor.stop_game("sup_test")
+  iex> Process.alive?(game)
+  false
   """
 
   def start_link(_options), do: DynamicSupervisor.start_link(__MODULE__, :ok, name: __MODULE__)

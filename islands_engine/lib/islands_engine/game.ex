@@ -3,6 +3,7 @@ defmodule IslandsEngine.Game do
 
   alias IslandsEngine.{Board, Guesses, Rules, Island, Coordinate}
   @players [:player1, :player2]
+  @timeout 15000
 
   def via_tuple(name), do: {:via, Registry, {Registry.Game, name}}
 
@@ -12,7 +13,7 @@ defmodule IslandsEngine.Game do
   def init(name) do
     player1 = %{name: name, board: Board.new(), guesses: Guesses.new()}
     player2 = %{name: nil, board: Board.new(), guesses: Guesses.new()}
-    {:ok, %{player1: player1, player2: player2, rules: Rules.new()}}
+    {:ok, %{player1: player1, player2: player2, rules: Rules.new()}, @timeout}
   end
 
   @doc """
@@ -56,7 +57,7 @@ defmodule IslandsEngine.Game do
       |> update_rules(rules)
       |> reply_success(:ok)
     else
-      :error -> {:reply, :error, state}
+      :error -> reply_error(state, :error)
     end
   end
 
@@ -72,10 +73,10 @@ defmodule IslandsEngine.Game do
       |> update_rules(rules)
       |> reply_success(:ok)
     else
-      :error -> {:reply, :error, state}
-      {:error, :invalid_coordinates} -> {:reply, {:error, :invalid_coordinates}, state}
-      {:error, :invalid_island_type} -> {:reply, {:error, :invalid_island_type}, state}
-      {:error, :overlapping_island} -> {:reply, {:error, :overlapping_island}, state}
+      :error -> reply_error(state, :error)
+      {:error, :invalid_coordinates} -> reply_error(state, {:error, :invalid_coordinates})
+      {:error, :invalid_island_type} -> reply_error(state, {:error, :invalid_island_type})
+      {:error, :overlapping_island} -> reply_error(state, {:error, :overlapping_island})
     end
   end
 
@@ -88,8 +89,8 @@ defmodule IslandsEngine.Game do
       |> update_rules(rules)
       |> reply_success(:ok)
     else
-      :error -> {:reply, :error, state}
-      false -> {:reply, {:error, :not_all_islands_positioned}, state}
+      :error -> reply_error(state, :error)
+      false -> reply_error(state, {:error, :not_all_islands_positioned})
     end
   end
 
@@ -108,14 +109,15 @@ defmodule IslandsEngine.Game do
       |> update_rules(rules)
       |> reply_success({hit_or_miss, forested_island, win_status})
     else
-      :error -> {:reply, :error, state}
-      {:error, :invalid_coordinates} -> {:reply, {:error, :invalid_coordinates}, state}
+      :error -> reply_error(state, :error)
+      {:error, :invalid_coordinates} -> reply_error(state, {:error, :invalid_coordinates})
     end
   end
 
   defp update_player2_name(state, name), do: put_in(state.player2.name, name)
   defp update_rules(state, rules), do: %{state | rules: rules}
-  defp reply_success(state, reply), do: {:reply, reply, state}
+  defp reply_success(state, reply), do: {:reply, reply, state, @timeout}
+  defp reply_error(state, reply), do: {:reply, reply, state, @timeout}
 
   defp player_board(state, player), do: Map.get(state, player).board
   defp opponent(:player1), do: :player2
