@@ -1,5 +1,5 @@
 defmodule GameTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest IslandsEngine.Game
 
   alias IslandsEngine.{Game}

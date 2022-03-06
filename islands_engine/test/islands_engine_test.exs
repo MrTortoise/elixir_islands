@@ -1,5 +1,5 @@
 defmodule IslandsEngineTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest IslandsEngine
 
   test "greets the world" do

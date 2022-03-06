@@ -1,7 +1,10 @@
 defmodule IslandsEngine.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
-  @moduledoc false
+  @moduledoc """
+  Application supervisor - starts the registry that holds unique game names
+  and the game supervisor that manages the indiivudal games
+  """
 
   use Application
 
