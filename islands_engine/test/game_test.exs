@@ -17,7 +17,22 @@ defmodule GameTest do
     player2_name = to_string(CryptoRand.take_random(?a..?z, 10))
     {:ok, game} = Game.start_link(player1_name)
     :ok = Game.add_player(game, player2_name)
-    [{player1_name, state}] = :ets.lookup(:game_state, player1_name)
+    [{^player1_name, state}] = :ets.lookup(:game_state, player1_name)
+    assert player2_name == state.player2.name
+  end
+
+  test "game state get reloaded from ets" do
+    player1_name = to_string(CryptoRand.take_random(?a..?z, 10))
+    player2_name = to_string(CryptoRand.take_random(?a..?z, 10))
+    {:ok, game} = Game.start_link(player1_name)
+    :ok = Game.add_player(game, player2_name)
+
+    Process.unlink(game)
+    Process.exit(game, :boom)
+
+    {:ok, game} = Game.start_link(player1_name)
+
+    state = :sys.get_state(game)
     assert player2_name == state.player2.name
   end
 

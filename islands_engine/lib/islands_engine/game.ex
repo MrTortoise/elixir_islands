@@ -11,9 +11,31 @@ defmodule IslandsEngine.Game do
     do: GenServer.start_link(__MODULE__, name, name: via_tuple(name))
 
   def init(name) do
+    {:ok, init_state(name), {:continue, :load}}
+  end
+
+  def handle_continue(:load, initial_state) do
+    name = initial_state.player1.name
+
+    state =
+      case :ets.lookup(:game_state, name) do
+        [] -> initial_state
+        [{_key, state}] -> state
+      end
+
+    :ets.insert(:game_state, {name, state})
+    {:noreply, state, @timeout}
+  end
+
+  def handle_info(:timeout, state) do
+    {:stop, {:shutdown, :timeout}, state}
+  end
+
+  defp init_state(name) do
     player1 = %{name: name, board: Board.new(), guesses: Guesses.new()}
     player2 = %{name: nil, board: Board.new(), guesses: Guesses.new()}
-    {:ok, %{player1: player1, player2: player2, rules: Rules.new()}, @timeout}
+
+    %{player1: player1, player2: player2, rules: Rules.new()}
   end
 
   @doc """
@@ -21,10 +43,12 @@ defmodule IslandsEngine.Game do
 
   ## Example
   iex> alias IslandsEngine.Game
-  iex> {:ok, game} = Game.start_link("Dave")
-  iex> Game.add_player(game, "dave2")
+  iex> player1_name = to_string(CryptoRand.take_random(?a..?z, 10))
+  iex> player2_name = to_string(CryptoRand.take_random(?a..?z, 10))
+  iex> {:ok, game} = Game.start_link(player1_name)
+  iex> Game.add_player(game, player2_name)
   :ok
-  iex> :sys.get_state(game).player2.name == "dave2"
+  iex> :sys.get_state(game).player2.name == player2_name
   true
   """
   def add_player(game, name) when is_binary(name), do: GenServer.call(game, {:add_player, name})
@@ -49,10 +73,6 @@ defmodule IslandsEngine.Game do
 
   def guess_coordinate(game, player, row, col) when player in @players,
     do: GenServer.call(game, {:guess_coordinate, player, row, col})
-
-  def handle_info(:timeout, state) do
-    {:stop, {:shutdown, :timeout}, state}
-  end
 
   def handle_call({:add_player, name}, _from, state) do
     with {:ok, rules} <- Rules.check(state.rules, :add_player) do
